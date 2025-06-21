@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
     "numpy>=2.3.0",
+    "tqdm>=4.67.1",
 ]
 
 [build-system]
@@ -17,5 +18,13 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "mypy>=1.16.1",
+    "pre-commit>=4.2.0",
+    "pytest>=8.4.1",
     "ruff>=0.12.0",
+    "types-tqdm>=4.67.0.20250516",
 ]
+
+[tool.ruff]
+line-length = 120
+select = ["F", "I"]
