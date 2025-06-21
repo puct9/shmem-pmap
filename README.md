@@ -21,3 +21,9 @@ shmem_pmap(do_work, parallel=4)(data)
 
 shmem_pmap(do_work, parallel=4)(data, rv_shape=(10,), rv_dtype=np.int64)
 ```
+
+## Benchmarking
+
+```bash
+viztracer benchmark/benchmark.py
+```
