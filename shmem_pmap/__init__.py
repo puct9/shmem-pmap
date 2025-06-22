@@ -38,7 +38,13 @@ def tree_map(fn, head, *rest):
         return [tree_map(fn, *args) for args in zip(head, *rest, strict=True)]
     elif isinstance(head, tuple):
         assert all(type(head) is type(r) for r in rest)
-        return tuple(tree_map(fn, *args) for args in zip(head, *rest, strict=True))
+        if hasattr(head, "_fields"):
+            # namedtuple
+            return type(head)(
+                **{field: tree_map(fn, *[getattr(o, field) for o in (head, *rest)]) for field in head._fields}
+            )
+        else:
+            return tuple(tree_map(fn, *args) for args in zip(head, *rest, strict=True))
     elif isinstance(head, collections.abc.Mapping):
         assert all(type(head) is type(r) for r in rest)
         assert all(sorted(head) == sorted(r) for r in rest)

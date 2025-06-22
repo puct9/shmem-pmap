@@ -1,6 +1,8 @@
+from typing import NamedTuple
+
 import numpy as np
 
-from shmem_pmap import shmem_pmap
+from shmem_pmap import NpyArray, shmem_pmap
 
 
 def do_work(arr):
@@ -77,7 +79,6 @@ def test_multi_input_list_specified():
 
 
 def do_work3(data):
-    print(f"{data=}")
     return data["arr1"] + data["arr2"]
 
 
@@ -92,4 +93,27 @@ def test_multi_input_dict_specified():
     arr1 = np.arange(1024)
     arr2 = 1024 - np.arange(1024)
     res = shmem_pmap(do_work3, parallel=4)({"arr1": arr1, "arr2": arr2}, rv_shape=(1024,), rv_dtype=arr1.dtype)
+    assert (res == 1024).all()
+
+
+class Pair(NamedTuple):
+    arr1: NpyArray
+    arr2: NpyArray
+
+
+def do_work4(data):
+    return data.arr1 + data.arr2
+
+
+def test_multi_input_namedtuple():
+    arr1 = np.arange(1024)
+    arr2 = 1024 - np.arange(1024)
+    res = shmem_pmap(do_work4, parallel=4)(Pair(arr1, arr2))
+    assert (res == 1024).all()
+
+
+def test_multi_input_namedtuple_specified():
+    arr1 = np.arange(1024)
+    arr2 = 1024 - np.arange(1024)
+    res = shmem_pmap(do_work4, parallel=4)(Pair(arr1, arr2), rv_shape=(1024,), rv_dtype=arr1.dtype)
     assert (res == 1024).all()
