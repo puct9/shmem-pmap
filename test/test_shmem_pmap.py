@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import NamedTuple
 
 import numpy as np
@@ -65,4 +66,24 @@ def test_multi_input_namedtuple(specified):
     data = Pair(arr1, arr2)
     kwargs = {"rv_shape": 1024, "rv_dtype": arr1.dtype} if specified else {}
     res = shmem_pmap(do_work4, parallel=4)(data, **kwargs)
+    assert (res == 1024).all()
+
+
+@dataclass
+class PairDC:
+    arr1: NpyArray
+    arr2: NpyArray
+
+
+def do_work5(data: PairDC):
+    return data.arr1 + data.arr2
+
+
+@pytest.mark.parametrize("specified", [False, True])
+def test_multi_input_dataclass(specified):
+    arr1 = np.arange(1024)
+    arr2 = 1024 - arr1
+    data = PairDC(arr1, arr2)
+    kwargs = {"rv_shape": 1024, "rv_dtype": arr1.dtype} if specified else {}
+    res = shmem_pmap(do_work5, parallel=4)(data, **kwargs)
     assert (res == 1024).all()

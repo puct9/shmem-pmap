@@ -1,4 +1,5 @@
 import collections
+from dataclasses import fields, is_dataclass
 from functools import wraps
 from math import prod
 from multiprocessing.shared_memory import SharedMemory
@@ -49,6 +50,11 @@ def tree_map(fn, head, *rest):
         assert all(type(head) is type(r) for r in rest)
         assert all(sorted(head) == sorted(r) for r in rest)
         return {key: tree_map(fn, head[key], *[r[key] for r in rest]) for key in head}
+    elif is_dataclass(head) and not isinstance(head, type):
+        assert all(type(head) is type(r) for r in rest)
+        return type(head)(
+            **{field.name: tree_map(fn, *[getattr(o, field.name) for o in (head, *rest)]) for field in fields(head)}
+        )
     else:
         return fn(head, *rest)
 
