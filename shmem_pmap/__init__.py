@@ -65,10 +65,11 @@ def shmem_pmap(
     def wrapped(
         inp: PyTree[NpyArray],
         *,
-        rv_shape: tuple[Any, ...] | None = None,
+        rv_shape: tuple[Any, ...] | int | None = None,
         rv_dtype: np.dtype[Any] | None = None,
     ) -> npt.NDArray[U_np]:
         assert (rv_shape is None) == (rv_dtype is None)
+        rv_shape = (rv_shape,) if isinstance(rv_shape, int) else rv_shape
 
         inp_lengths = []
         tree_map(lambda arr: inp_lengths.append(len(arr)), inp)
